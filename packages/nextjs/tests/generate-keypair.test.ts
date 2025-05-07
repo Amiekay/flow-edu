@@ -2,13 +2,14 @@ import { NextRequest } from "next/server";
 import { resetDB } from "./db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "~~/app/api/generate-keypair/[address]/route";
+import { normalizeAddress } from "~~/app/api/lib/helpers";
 
 vi.mock("../app/api/lib/deriveHDWallet", async () => {
   const mod = await vi.importActual("../app/api/lib/deriveHDWallet");
   return {
     ...mod,
     deriveHDWallet: vi.fn().mockImplementation((index: number) => ({
-      address: "mockedPublicKey",
+      address: normalizeAddress("mockedPublicKey"),
       privateKey: "mockedPrivateKey",
     })),
   };
@@ -25,7 +26,7 @@ describe("GET /api/generate-keypair/[address]", () => {
   });
 
   it("should create a new wallet for a fresh user", async () => {
-    const address = "0x000000000000000000000000000000000000dEaD";
+    const address = normalizeAddress("0x000000000000000000000000000000000000dEaD");
 
     const res = await GET({} as NextRequest, { params: Promise.resolve({ address }) });
     const json = await res.json();
